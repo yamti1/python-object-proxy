@@ -13,4 +13,4 @@ class Proxy(object):
 
             setattr(Wrapper, attribute_name, wrapped_attribute)
 
-        return Wrapper
+        return Wrapper()
