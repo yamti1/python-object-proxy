@@ -35,8 +35,24 @@ class TestProxy(TestCase):
         expected = 6
         args = 1, 4, 5
         kwargs = {"a": 2, "b": 3}
-        self.foo.func = Fake("func").expects_call().returns(expected).with_matching_args(*args, **kwargs)
+        self.foo.func = Fake("func").expects_call().returns(expected).with_args(*args, **kwargs)
 
         result = self.proxy.func(*args, **kwargs)
 
         self.assertEqual(result, expected, "Call to a function through Proxy returned an unexpected result")
+
+    def test_special_method_call(self):
+        expected = range(10)
+
+        # Special Methods require the object's class to define them so
+        # setting `self.foo.__iter__` to a `fudge.Fake` won't work.
+        class Foo(object):
+            def __iter__(self):
+                return iter(expected)
+
+        self.foo = Foo()
+        self.proxy = Proxy(self.foo)
+
+        result = [num for num in self.proxy]
+        self.assertEqual(result, expected,
+                         "A call to a special method `__iter__` on the Proxy returned an unexpected result")
