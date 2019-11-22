@@ -67,3 +67,6 @@ class TestProxy(TestCase):
 
         self.assertEqual(self.foo.__module__, self.proxy.__module__,
                          "Proxy's module does not match original object's module")
+
+        self.assertEqual(self.foo.__class__.__name__, self.proxy.__class__.__name__,
+                         "Proxy's class name does not match original object's class name")
