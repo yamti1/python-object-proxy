@@ -1,6 +1,6 @@
 import fudge
 from fudge import Fake
-from unittest import TestCase
+from unittest import TestCase, skip
 
 from object_proxy import Proxy
 
@@ -70,3 +70,19 @@ class TestProxy(TestCase):
 
         self.assertEqual(self.foo.__class__.__name__, self.proxy.__class__.__name__,
                          "Proxy's class name does not match original object's class name")
+
+    @skip("TODO")
+    def test_weakref(self):
+        pass
+
+    @skip("TODO")
+    def test_child_class(self):
+        pass
+
+    @skip("TODO")
+    def test_custom_getattr(self):
+        pass
+
+    @skip("TODO")
+    def test_custom_getattribute(self):
+        pass
