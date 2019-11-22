@@ -5,25 +5,6 @@ class Proxy(object):
     and the result will be given back to the user.
     """
 
-    ATTRIBUTES_TO_COPY_FROM_TYPE = [
-        "__name__",
-        "__doc__",
-    ]
-
-    @staticmethod
-    def __set_from_type(obj, proxy_class):
-        """
-        Sets attributes of the class of the proxy object
-        to the appropriate attributes of the class of the original object.
-        :param obj: The original object.
-        :type obj: object
-        :param proxy_class: The class of the proxy object.
-        :type proxy_class: type
-        """
-        for attr_to_copy in Proxy.ATTRIBUTES_TO_COPY_FROM_TYPE:
-            attr = getattr(type(obj), attr_to_copy)
-            setattr(proxy_class, attr_to_copy, attr)
-
     @staticmethod
     def __set_special_methods(obj, proxy_class):
         """
@@ -45,6 +26,34 @@ class Proxy(object):
 
             setattr(proxy_class, attribute_name, get_wrapped_attribute(attribute_name))
 
+    @staticmethod
+    def __set_attribute_access(obj, proxy_class):
+        """
+        Sets `__getattr__`, `__setattr__` and `__delattr__` of the proxy class
+        to delegate the calls to the original object.
+        :param obj: The original object.
+        :type obj: object
+        :param proxy_class: The class of the proxy object.
+        :type proxy_class: type
+        """
+        def get_attribute(_proxy, attribute_name):
+            return getattr(obj, attribute_name)
+
+        def set_attribute(_proxy, attribute_name, value):
+            return setattr(obj, attribute_name, value)
+
+        def del_attribute(_proxy, attribute_name):
+            return delattr(obj, attribute_name)
+
+        funcs_map = {
+            "__getattr__": get_attribute,
+            "__setattr__": set_attribute,
+            "__delattr__": del_attribute,
+        }
+
+        for func_name, func in funcs_map.items():
+            setattr(proxy_class, func_name, func)
+
     def __new__(cls, obj):
         """
         Create a new proxy object.
@@ -55,11 +64,17 @@ class Proxy(object):
         :return: A new proxy object.
         :rtype: type(obj)
         """
-        class _Proxy(object):
-            def __getattr__(self, item):
-                return getattr(obj, item)
 
-        cls.__set_from_type(obj, _Proxy)
+        # Create a class copy
+        class_dict = dict(type(obj).__dict__)
+        class_name = type(obj).__name__
+        class_bases = type(obj).__bases__
+
+        _Proxy = type(class_name, class_bases, class_dict)
+
         cls.__set_special_methods(obj, _Proxy)
+        cls.__set_attribute_access(obj, _Proxy)
 
         return _Proxy()
+
+
