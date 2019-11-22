@@ -1,21 +1,27 @@
+from unittest import TestCase
+
 from object_proxy import Proxy
 
 
 class Foo(object):
-    def __init__(self):
-        self.foo = 4
-
-    def bar(self):
-        return 5 * self.foo
+    foo = 3
 
 
-def test():
-    foo = Foo()
-    proxy = Proxy(foo)
+class TestProxy(TestCase):
+    def __init__(self, *args, **kwargs):
+        super(TestProxy, self).__init__(*args, **kwargs)
 
-    print proxy.foo
-    print proxy.bar()
+        self.foo = None
+        self.proxy = None
 
+    def setUp(self):
+        self.foo = Foo()
+        self.proxy = Proxy(self.foo)
 
-if __name__ == "__main__":
-    test()
+    def test_get_attribute(self):
+        assert self.foo.foo == self.proxy.foo, "Proxy did not get the attribute of the original object"
+
+    def test_set_attribute(self):
+        expected = 6
+        self.proxy.foo = expected
+        assert self.foo.foo == expected, "Proxy did not set the attribute of the original object"
