@@ -5,6 +5,17 @@ class Proxy(object):
     and the result will be given back to the user.
     """
 
+    CLASS_ATTRIBUTES_TO_COPY = ["__doc__", "__module__", "__weakref__"]
+
+    @classmethod
+    def get_class_copy(cls, class_):
+
+        class_dict = {class_attr: getattr(class_, class_attr) for class_attr in cls.CLASS_ATTRIBUTES_TO_COPY}
+        class_name = class_.__name__
+        class_bases = class_.__bases__
+
+        return type(class_name, class_bases, class_dict)
+
     @staticmethod
     def __set_special_methods(obj, proxy_class):
         """
@@ -64,13 +75,7 @@ class Proxy(object):
         :return: A new proxy object.
         :rtype: type(obj)
         """
-
-        # Create a class copy
-        class_dict = dict(type(obj).__dict__)
-        class_name = type(obj).__name__
-        class_bases = type(obj).__bases__
-
-        _Proxy = type(class_name, class_bases, class_dict)
+        _Proxy = cls.get_class_copy(type(obj))
 
         cls.__set_special_methods(obj, _Proxy)
         cls.__set_attribute_access(obj, _Proxy)
