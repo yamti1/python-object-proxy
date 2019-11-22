@@ -30,5 +30,6 @@ class TestProxy(TestCase):
 
     def test_del_attribute(self):
         del self.foo.value
-        assert not hasattr(self.proxy,
-                           "value"), "Attribute in Proxy was not deleted after deleting it in the original object"
+
+        msg = "Attribute in Proxy was not deleted after deleting it in the original object"
+        assert not hasattr(self.proxy, "value"), msg
