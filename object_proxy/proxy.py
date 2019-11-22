@@ -9,6 +9,14 @@ class Proxy(object):
 
     @classmethod
     def get_class_copy(cls, class_):
+        """
+        Creates a copy of a class by it's metadata.
+        "Real-Data" attributes are not copied.
+        :param class_: The class to copy
+        :type class_: type
+        :return: The resulting copy
+        :rtype: type
+        """
 
         class_dict = {class_attr: getattr(class_, class_attr) for class_attr in cls.CLASS_ATTRIBUTES_TO_COPY}
         class_name = class_.__name__
@@ -17,7 +25,7 @@ class Proxy(object):
         return type(class_name, class_bases, class_dict)
 
     @staticmethod
-    def __set_special_methods(obj, proxy_class):
+    def set_special_methods(obj, proxy_class):
         """
         Sets special `__methods__` of the proxy class
         to call the appropriate method of the original object.
@@ -38,7 +46,7 @@ class Proxy(object):
             setattr(proxy_class, attribute_name, get_wrapped_attribute(attribute_name))
 
     @staticmethod
-    def __set_attribute_access(obj, proxy_class):
+    def set_attribute_access(obj, proxy_class):
         """
         Sets `__getattr__`, `__setattr__` and `__delattr__` of the proxy class
         to delegate the calls to the original object.
@@ -77,8 +85,8 @@ class Proxy(object):
         """
         _Proxy = cls.get_class_copy(type(obj))
 
-        cls.__set_special_methods(obj, _Proxy)
-        cls.__set_attribute_access(obj, _Proxy)
+        cls.set_special_methods(obj, _Proxy)
+        cls.set_attribute_access(obj, _Proxy)
 
         return _Proxy()
 
