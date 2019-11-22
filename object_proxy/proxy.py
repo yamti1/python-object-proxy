@@ -53,7 +53,7 @@ class Proxy(object):
         :param obj: The original object to create a proxy to.
         :type obj: object
         :return: A new proxy object.
-        :rtype: object
+        :rtype: type(obj)
         """
         class _Proxy(object):
             def __getattr__(self, item):
