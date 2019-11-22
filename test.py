@@ -6,6 +6,10 @@ from object_proxy import Proxy
 
 
 class Foo(object):
+    """
+    Defines the target objects of the Proxy.
+    """
+
     def __init__(self):
         self.value = 3
 
@@ -56,3 +60,10 @@ class TestProxy(TestCase):
         result = [num for num in self.proxy]
         self.assertEqual(result, expected,
                          "A call to a special method `__iter__` on the Proxy returned an unexpected result")
+
+    def test_class_metadata(self):
+        self.assertEqual(self.foo.__doc__, self.proxy.__doc__,
+                         "Proxy's docstring does not match original object's docstring")
+
+        self.assertEqual(self.foo.__module__, self.proxy.__module__,
+                         "Proxy's module does not match original object's module")
