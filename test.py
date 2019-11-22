@@ -4,7 +4,8 @@ from object_proxy import Proxy
 
 
 class Foo(object):
-    value = 3
+    def __init__(self):
+        self.value = 3
 
 
 class TestProxy(TestCase):
@@ -26,3 +27,8 @@ class TestProxy(TestCase):
         expected = 6
         self.proxy.value = expected
         assert self.foo.value == expected, "Proxy did not set the attribute of the original object"
+
+    def test_del_attribute(self):
+        del self.foo.value
+        assert not hasattr(self.proxy,
+                           "value"), "Attribute in Proxy was not deleted after deleting it in the original object"
