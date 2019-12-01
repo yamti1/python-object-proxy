@@ -25,7 +25,23 @@ class Proxy(object):
         return type(class_name, class_bases, class_dict)
 
     @staticmethod
-    def set_special_methods(obj, proxy_class):
+    def __get_proxy_method(obj, method_name):
+        """
+        Get a function that calls the method of the given object and returns the result.
+        :param obj: The object that has the method.
+        :type obj: object
+        :param method_name: The name of the method to call.
+        :type method_name: str
+        :return: The result of the method call.
+        :rtype: object
+        """
+        def wrapped_attribute(_self, *args, **kwargs):
+            return getattr(obj, method_name)(*args, **kwargs)
+
+        return wrapped_attribute
+
+    @classmethod
+    def set_special_methods(cls, obj, proxy_class):
         """
         Sets special `__methods__` of the proxy class
         to call the appropriate method of the original object.
@@ -34,17 +50,10 @@ class Proxy(object):
         :param proxy_class: The class of the proxy object.
         :type proxy_class: type
         """
+        method_names = [attribute_name for attribute_name, attribute in type(obj).__dict__.items() if callable(attribute)]
 
-        def get_wrapped_attribute(attr_name):
-            def wrapped_attribute(_self, *args, **kwargs):
-                return getattr(obj, attr_name)(*args, **kwargs)
-            return wrapped_attribute
-
-        for attribute_name, attribute in type(obj).__dict__.items():
-            if not callable(getattr(obj, attribute_name)):
-                continue
-
-            setattr(proxy_class, attribute_name, get_wrapped_attribute(attribute_name))
+        for method_name in method_names:
+            setattr(proxy_class, method_name, cls.__get_proxy_method(obj, method_name))
 
     @staticmethod
     def set_attribute_access(obj, proxy_class):
