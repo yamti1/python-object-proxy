@@ -25,14 +25,15 @@ class TestProxy(TestCase):
 
     def test_set_attribute(self):
         expected = 6
+        self.foo.value = expected + 1
         self.proxy.value = expected
         self.assertEqual(self.foo.value, expected, "Proxy did not set the attribute of the original object")
 
     def test_del_attribute(self):
-        del self.foo.value
+        del self.proxy.value
 
-        self.assertFalse(hasattr(self.proxy, "value"),
-                         "Attribute in Proxy was not deleted after deleting it in the original object")
+        self.assertFalse(hasattr(self.foo, "value"),
+                         "Attribute was not deleted on original object after deleting it on proxy")
 
     @fudge.test
     def test_method_call(self):
