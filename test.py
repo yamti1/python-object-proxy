@@ -79,9 +79,65 @@ class TestProxy(TestCase):
     def test_child_class(self):
         pass
 
-    @skip("TODO")
     def test_custom_getattr(self):
-        pass
+        class Boo(object):
+            expected_key = "val"
+            expected_value = 9
+
+            def __init__(self):
+                self.got_expected_key = False
+
+            def __getattr__(self, key):
+                self.got_expected_key = key == Boo.expected_key
+                return Boo.expected_value
+
+        boo = Boo()
+        proxy = Proxy(boo)
+        result = getattr(proxy, Boo.expected_key)
+
+        self.assertEqual(Boo.expected_value, result,
+                         "Proxy did not return the expected result from __getattr__ of the original object.")
+        self.assertTrue(boo.got_expected_key,
+                        "Proxy did not call custom __getattr__ of the original object with the correct key.")
+
+    def test_custom_setattr(self):
+        class Boo(object):
+            expected_key = "val"
+            expected_value = 9
+
+            def __init__(self):
+                self.got_expected_key = False
+                self.got_expected_value = False
+
+            def __setattr__(self, key, value):
+                object.__setattr__(self, "got_expected_key", key == Boo.expected_key)
+                object.__setattr__(self, "got_expected_value", value == Boo.expected_value)
+
+        boo = Boo()
+        proxy = Proxy(boo)
+        setattr(proxy, Boo.expected_key, Boo.expected_value)
+
+        self.assertTrue(boo.got_expected_key,
+                        "Proxy did not call custom __setattr__ of the original object with the correct key.")
+        self.assertTrue(boo.got_expected_value,
+                        "Proxy did not call custom __setattr__ of the original object with the correct value.")
+
+    def test_custom_deltattr(self):
+        class Boo(object):
+            expected_key = "val"
+
+            def __init__(self):
+                self.got_expected_key = False
+
+            def __delattr__(self, key):
+                self.got_expected_key = key == Boo.expected_key
+
+        boo = Boo()
+        proxy = Proxy(boo)
+        delattr(proxy, Boo.expected_key)
+
+        self.assertTrue(boo.got_expected_key,
+                        "Proxy did not call custom __delattr__ of the original object with the correct key.")
 
     @skip("TODO")
     def test_custom_getattribute(self):
