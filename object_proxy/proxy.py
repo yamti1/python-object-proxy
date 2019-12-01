@@ -34,14 +34,15 @@ class Proxy(object):
         :param proxy_class: The class of the proxy object.
         :type proxy_class: type
         """
+
+        def get_wrapped_attribute(attr_name):
+            def wrapped_attribute(_self, *args, **kwargs):
+                return getattr(obj, attr_name)(*args, **kwargs)
+            return wrapped_attribute
+
         for attribute_name, attribute in type(obj).__dict__.items():
             if not callable(getattr(obj, attribute_name)):
                 continue
-
-            def get_wrapped_attribute(attr_name):
-                def wrapped_attribute(_self, *args, **kwargs):
-                    return getattr(obj, attr_name)(*args, **kwargs)
-                return wrapped_attribute
 
             setattr(proxy_class, attribute_name, get_wrapped_attribute(attribute_name))
 
