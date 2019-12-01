@@ -35,6 +35,7 @@ class Proxy(object):
         :return: The result of the method call.
         :rtype: object
         """
+
         def wrapped_attribute(_self, *args, **kwargs):
             return getattr(obj, method_name)(*args, **kwargs)
 
@@ -50,7 +51,9 @@ class Proxy(object):
         :param proxy_class: The class of the proxy object.
         :type proxy_class: type
         """
-        method_names = [attribute_name for attribute_name, attribute in type(obj).__dict__.items() if callable(attribute)]
+
+        method_names = [attribute_name for attribute_name, attribute in type(obj).__dict__.items() if
+                        callable(attribute)]
 
         for method_name in method_names:
             setattr(proxy_class, method_name, cls.__get_proxy_method(obj, method_name))
@@ -65,6 +68,7 @@ class Proxy(object):
         :param proxy_class: The class of the proxy object.
         :type proxy_class: type
         """
+
         def get_attribute(_proxy, attribute_name):
             return getattr(obj, attribute_name)
 
@@ -93,11 +97,10 @@ class Proxy(object):
         :return: A new proxy object.
         :rtype: type(obj)
         """
+
         _Proxy = cls.get_class_copy(type(obj))
 
         cls.set_special_methods(obj, _Proxy)
         cls.set_attribute_access(obj, _Proxy)
 
         return _Proxy()
-
-
