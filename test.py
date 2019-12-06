@@ -97,9 +97,25 @@ class TestProxy(TestCase):
     def test_weakref(self):
         pass
 
-    @skip("TODO")
     def test_child_class(self):
-        pass
+        """
+        Tests that the Proxy can properly all a special method defined in a base class of the original object.
+        """
+
+        expected = range(10)
+
+        class Base(object):
+            def __iter__(self):
+                return iter(expected)
+
+        class Child(Base):
+            pass
+
+        child = Child()
+        proxy = Proxy(child)
+
+        result = [num for num in proxy]
+        self.assertEqual(result, expected)
 
     def test_custom_getattr(self):
         """
