@@ -16,20 +16,32 @@ class Foo(object):
 
 class TestProxy(TestCase):
     def setUp(self):
+        """
+        Creates a new orignial object and a new Proxy to it.
+        """
         self.foo = Foo()
         self.proxy = Proxy(self.foo)
 
     def test_get_attribute(self):
+        """
+        Tests getting an attribute of the original object through the Proxy.
+        """
         self.foo.value = 6
         self.assertEqual(self.foo.value, self.proxy.value, "Proxy did not get the attribute of the original object")
 
     def test_set_attribute(self):
+        """
+        Tests setting an attribute of the original object through the Proxy.
+        """
         expected = 6
         self.foo.value = expected + 1
         self.proxy.value = expected
         self.assertEqual(self.foo.value, expected, "Proxy did not set the attribute of the original object")
 
     def test_del_attribute(self):
+        """
+        Tests deleting an attribute of the original object through the Proxy.
+        """
         del self.proxy.value
 
         self.assertFalse(hasattr(self.foo, "value"),
@@ -37,6 +49,9 @@ class TestProxy(TestCase):
 
     @fudge.test
     def test_method_call(self):
+        """
+        Tests calling a method of the original object through the Proxy.
+        """
         expected = 6
         args = 1, 4, 5
         kwargs = {"a": 2, "b": 3}
@@ -47,6 +62,9 @@ class TestProxy(TestCase):
         self.assertEqual(result, expected, "Call to a function through Proxy returned an unexpected result")
 
     def test_special_method_call(self):
+        """
+        Tests activating a special method of the original object through the Proxy.
+        """
         expected = range(10)
 
         # Special Methods require the object's class to define them so
@@ -63,6 +81,9 @@ class TestProxy(TestCase):
                          "A call to a special method `__iter__` on the Proxy returned an unexpected result")
 
     def test_class_metadata(self):
+        """
+        Tests the the Proxy's class has the same name, docstring and module name as the original object's class.
+        """
         self.assertEqual(self.foo.__doc__, self.proxy.__doc__,
                          "Proxy's docstring does not match original object's docstring")
 
@@ -81,6 +102,9 @@ class TestProxy(TestCase):
         pass
 
     def test_custom_getattr(self):
+        """
+        Tests that the Proxy calls the original object's `__getattr__` properly.
+        """
         class Boo(object):
             expected_key = "val"
             expected_value = 9
@@ -102,6 +126,9 @@ class TestProxy(TestCase):
                         "Proxy did not call custom __getattr__ of the original object with the correct key.")
 
     def test_custom_setattr(self):
+        """
+        Tests that the Proxy calls the original object's `__setattr__` properly.
+        """
         class Boo(object):
             expected_key = "val"
             expected_value = 9
@@ -124,6 +151,9 @@ class TestProxy(TestCase):
                         "Proxy did not call custom __setattr__ of the original object with the correct value.")
 
     def test_custom_deltattr(self):
+        """
+        Tests that the Proxy calls the original object's `__delattr__` properly.
+        """
         class Boo(object):
             expected_key = "val"
 
