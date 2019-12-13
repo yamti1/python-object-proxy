@@ -37,7 +37,7 @@ class Proxy(object):
         """
 
         def wrapped_attribute(_self, *args, **kwargs):
-            return getattr(obj, method_name)(*args, **kwargs)
+            return object.__getattribute__(obj, method_name)(*args, **kwargs)
 
         return wrapped_attribute
 
