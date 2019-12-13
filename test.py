@@ -186,6 +186,56 @@ class TestProxy(TestCase):
         self.assertTrue(boo.got_expected_key,
                         "Proxy did not call custom __delattr__ of the original object with the correct key.")
 
-    @skip("TODO")
     def test_custom_getattribute(self):
-        pass
+        """
+        Tests that the Proxy calls the original object's `__getattribute__` properly.
+        """
+
+        class Boo(object):
+            expected_key = "val"
+            expected_value = 9
+
+            def __init__(self):
+                self.got_expected_key = False
+
+            def __getattribute__(self, key):
+                self.got_expected_key = key == Boo.expected_key
+                return Boo.expected_value
+
+        boo = Boo()
+        proxy = Proxy(boo)
+        result = getattr(proxy, Boo.expected_key)
+
+        self.assertEqual(Boo.expected_value, result,
+                         "Proxy did not return the expected result from __getattribute__ of the original object.")
+        self.assertTrue(boo.got_expected_key,
+                        "Proxy did not call custom __getattribute__ of the original object with the correct key.")
+
+    def test_custom_getattribute_method_call(self):
+        """
+        Tests that the Proxy calls the original object's `__getattribute__` properly when calling a method.
+        """
+
+        class Boo(object):
+            expected_key = "get_val"
+            expected_value = 9
+
+            def __init__(self):
+                self.got_expected_key = False
+
+            @staticmethod
+            def get_val():
+                return Boo.expected_value
+
+            def __getattribute__(self, key):
+                self.got_expected_key = key == Boo.expected_key
+                return Boo.get_val
+
+        boo = Boo()
+        proxy = Proxy(boo)
+        result = getattr(proxy, Boo.expected_key)()
+
+        self.assertEqual(Boo.expected_value, result,
+                         "Proxy did not return the expected result from __getattribute__ of the original object.")
+        self.assertTrue(boo.got_expected_key,
+                        "Proxy did not call custom __getattribute__ of the original object with the correct key.")
